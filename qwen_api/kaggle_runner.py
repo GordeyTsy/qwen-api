@@ -406,6 +406,7 @@ def wait_server(proc, log):
 
 
 def start_model(quant, filename, ctx):
+    global LAST_TOUCH
     for old in MODELS.glob("*.gguf"):
         if old.name != filename:
             old.unlink(missing_ok=True)
@@ -443,6 +444,7 @@ def start_model(quant, filename, ctx):
         proc = subprocess.Popen(cmd, stdout=file, stderr=subprocess.STDOUT, start_new_session=True)
     (TMP / "llama.pid").write_text(str(proc.pid))
     wait_server(proc, log)
+    LAST_TOUCH = time.monotonic()
     READY.set()
     state(status="ready", quant=quant, context_size=ctx, server_pid=proc.pid, server_log=str(log))
     return proc
@@ -472,7 +474,7 @@ def idle_watchdog(proc):
 
 
 def main():
-    global CONTROL_URL
+    global CONTROL_URL, LAST_TOUCH
     try:
         state(status="starting", started_at=now())
         run_logged("nvidia_smi", ["nvidia-smi"], "nvidia-smi.log", check=False)
@@ -504,6 +506,7 @@ def main():
 
         api_url = tunnel(PORT, TMP / "api-tunnel.pid", "api-tunnel.log")
         base_url = api_url.rstrip("/") + "/v1"
+        LAST_TOUCH = time.monotonic()
         state(status="ready", public_url=api_url, base_url=base_url, log_url=log_url, control_url=CONTROL_URL, idle_timeout_seconds=IDLE_TIMEOUT)
         event("ready", public_url=api_url, base_url=base_url, log_url=log_url, control_url=CONTROL_URL, model=MODEL_ALIAS)
         threading.Thread(target=idle_watchdog, args=(proc,), daemon=True).start()
