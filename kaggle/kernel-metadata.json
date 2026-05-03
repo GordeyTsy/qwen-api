@@ -1,0 +1,16 @@
+{
+  "id": "gordeytsy/qwen-api",
+  "title": "qwen-api",
+  "code_file": "qwen-api.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
+

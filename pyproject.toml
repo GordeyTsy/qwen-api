@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qwen-api"
+version = "0.1.0"
+description = "Kaggle runtime for a Qwen OpenAI-compatible API backed by llama.cpp"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["qwen_api*"]
+
