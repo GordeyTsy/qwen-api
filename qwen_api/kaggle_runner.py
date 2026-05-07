@@ -30,7 +30,7 @@ MODEL_FILES = os.getenv(
     "Q4_K_P:Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-Q4_K_P.gguf,"
     "Q4_K_M:Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf",
 )
-CTX_SIZES = [int(item) for item in os.getenv("QWEN_CTX_SIZES", "131072,102400").split(",") if item.strip()]
+CTX_SIZES = [int(item) for item in os.getenv("QWEN_CTX_SIZES", "262144,196608,131072,102400").split(",") if item.strip()]
 
 PORT = int(os.getenv("QWEN_API_PORT", "8000"))
 API_KEY = os.getenv("QWEN_API_KEY") or "sk-kaggle-" + secrets.token_urlsafe(24)
@@ -433,8 +433,8 @@ def start_model(quant, filename, ctx):
         "-ctk", os.getenv("QWEN_CACHE_TYPE_K", "q4_0"),
         "-ctv", os.getenv("QWEN_CACHE_TYPE_V", "q4_0"),
         "-np", "1",
-        "-b", os.getenv("QWEN_BATCH_SIZE", "2048"),
-        "-ub", os.getenv("QWEN_UBATCH_SIZE", "512"),
+        "-b", os.getenv("QWEN_BATCH_SIZE", "512"),
+        "-ub", os.getenv("QWEN_UBATCH_SIZE", "128"),
         "--chat-template-kwargs", '{"enable_thinking":false}',
     ]
     if os.getenv("QWEN_NO_KV_OFFLOAD", "0").lower() in {"1", "true", "yes", "on"}:
