@@ -3,6 +3,9 @@ name: Build llama.cpp for Kaggle T4 (sm75)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
