@@ -26,13 +26,13 @@ jobs:
           export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
           export CUDACXX=/usr/local/cuda-12.1/bin/nvcc
           cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75
-          cmake --build build --config Release -j 4 --target llama-server llama-rpc-server
+          cmake --build build --config Release -j 4 --target llama-server rpc-server
           
       - name: Package
         run: |
           mkdir -p /tmp/bundle
           cp /tmp/llama.cpp/build/bin/llama-server /tmp/bundle/
-          cp /tmp/llama.cpp/build/bin/llama-rpc-server /tmp/bundle/
+          cp /tmp/llama.cpp/build/bin/rpc-server /tmp/bundle/llama-rpc-server
           # Copy .so libraries if they exist
           find /tmp/llama.cpp/build -name "*.so*" -exec cp {} /tmp/bundle/ \;
           cd /tmp/bundle
