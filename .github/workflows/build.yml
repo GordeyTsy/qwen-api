@@ -1,0 +1,44 @@
+name: Build llama.cpp for Kaggle T4 (sm75)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Checkout llama.cpp
+        run: git clone --branch b4000 --depth 1 https://github.com/ggerganov/llama.cpp /tmp/llama.cpp
+        
+      - name: Install CUDA toolkit
+        run: |
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo apt-get -y install cuda-toolkit-12-1
+          
+      - name: Build
+        run: |
+          cd /tmp/llama.cpp
+          export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
+          export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+          make GGML_CUDA=1 CUDA_DOCKER_ARCH=sm_75 -j 4 llama-server llama-rpc-server
+          
+      - name: Package
+        run: |
+          mkdir -p /tmp/bundle
+          cp /tmp/llama.cpp/llama-server /tmp/bundle/
+          cp /tmp/llama.cpp/llama-rpc-server /tmp/bundle/
+          cd /tmp/bundle
+          sha256sum * > SHA256SUMS
+          tar -czvf llama-server-cuda-sm75-linux-x86_64.tar.gz *
+          
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: runtime-bundle-sm75-v2
+          files: /tmp/bundle/llama-server-cuda-sm75-linux-x86_64.tar.gz
+          make_latest: true
