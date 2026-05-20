@@ -25,7 +25,7 @@ jobs:
           cd /tmp/llama.cpp
           export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
           export CUDACXX=/usr/local/cuda-12.1/bin/nvcc
-          cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75
+          cmake -B build -DGGML_CUDA=ON -DGGML_RPC=ON -DCMAKE_CUDA_ARCHITECTURES=75
           cmake --build build --config Release -j 4 --target llama-server rpc-server
           
       - name: Package
