@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Checkout llama.cpp
-        run: git clone --branch b4000 --depth 1 https://github.com/ggerganov/llama.cpp /tmp/llama.cpp
+        run: git clone --branch b4600 --depth 1 https://github.com/ggerganov/llama.cpp /tmp/llama.cpp
         
       - name: Install CUDA toolkit
         run: |
@@ -24,14 +24,17 @@ jobs:
         run: |
           cd /tmp/llama.cpp
           export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
-          export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-          make GGML_CUDA=1 CUDA_DOCKER_ARCH=sm_75 -j 4 llama-server llama-rpc-server
+          export CUDACXX=/usr/local/cuda-12.1/bin/nvcc
+          cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=75
+          cmake --build build --config Release -j 4 --target llama-server llama-rpc-server
           
       - name: Package
         run: |
           mkdir -p /tmp/bundle
-          cp /tmp/llama.cpp/llama-server /tmp/bundle/
-          cp /tmp/llama.cpp/llama-rpc-server /tmp/bundle/
+          cp /tmp/llama.cpp/build/bin/llama-server /tmp/bundle/
+          cp /tmp/llama.cpp/build/bin/llama-rpc-server /tmp/bundle/
+          # Copy .so libraries if they exist
+          find /tmp/llama.cpp/build -name "*.so*" -exec cp {} /tmp/bundle/ \;
           cd /tmp/bundle
           sha256sum * > SHA256SUMS
           tar -czvf llama-server-cuda-sm75-linux-x86_64.tar.gz *
